@@ -15,7 +15,6 @@ const searchHandler = async (event, context) => {
     }
 
     // 読み込んで JSON にする
-    // TODO 時系列じゃない
     const searchJsonFile = await fs.readFile('search.json', 'utf-8')
     const searchJsonObject = JSON.parse(searchJsonFile)
 
@@ -23,7 +22,7 @@ const searchHandler = async (event, context) => {
     const fuse = new Fuse(searchJsonObject, {
         keys: ['title', 'markdown']
     })
-    // 検索
+    // 検索結果、新しい順ではなくスコア順に並んでいる
     // 10 件まで
     const searchResult = fuse.search(query)
     // レスポンス用に小さくする
@@ -31,6 +30,7 @@ const searchHandler = async (event, context) => {
         .map(({ item }) => ({
             title: item['title'],
             link: item['link'],
+            createdAt: item['createdAt'],
             description: item['markdown'].slice(0, 100)
         }))
         .slice(0, 10)

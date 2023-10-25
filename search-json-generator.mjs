@@ -3,6 +3,9 @@
 // これは index.mjs で検索するために、検索用の JSON ファイルを使うのですが、この JSON ファイルを作る関数です。
 // GitHub Actions 等でデプロイする前にこの関数を呼び出して、search.json を作成します。
 
+// テスト用
+// node .\search-json-generator.mjs 'C:\Users\takusan23\Desktop\Dev\NextJS\ziyuutyou-next\content\posts' '/posts'
+
 // @ts-check
 import fs from 'fs/promises'
 import matter from 'gray-matter'
@@ -28,24 +31,20 @@ const main = async () => {
     })))
 
     // パースした内容から検索用の JSON オブジェクトを作る
-    const searchJsonObject = markdownDataList
-        // ソートする
-        .sort((a, b) => b.result.data['created_at'].getTime() - a.result.data['created_at'].getTime())
-        // 検索用のオブジェクトを作る
-        .map(({ filePath, result }) => {
-            const title = result.data['title']
-            const date = result.data['created_at']
-            const createdAt = date.toLocaleDateString('ja-JP')
-            const fileName = path.parse(filePath).name
-            const content = result.content
+    const searchJsonObject = markdownDataList.map(({ filePath, result }) => {
+        const title = result.data['title']
+        const date = result.data['created_at']
+        const createdAt = date.toLocaleDateString('ja-JP')
+        const fileName = path.parse(filePath).name
+        const content = result.content
 
-            return {
-                title: title,
-                link: `${baseUrl}/${fileName}`,
-                createdAt: createdAt,
-                markdown: content
-            }
-        })
+        return {
+            title: title,
+            link: `${baseUrl}/${fileName}`,
+            createdAt: createdAt,
+            markdown: content
+        }
+    })
 
     // ファイルに出す
     await fs.writeFile('search.json', JSON.stringify(searchJsonObject))
