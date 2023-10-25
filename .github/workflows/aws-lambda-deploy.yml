@@ -1,0 +1,62 @@
+# AWS Lambda で API を作りたい。そのデプロイを GitHub Actions でやる
+
+# 名前
+name: AWS Lambda Deploy
+
+# 起動条件。手動起動
+on:
+  workflow_dispatch:
+
+# やらせること
+jobs:
+  build:
+    # OS
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      # AWS のクレデンシャル
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      # Node.js インストール
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.13.0
+
+      # ライブラリを入れる
+      - name: Package install
+        run: npm i
+
+      # 記事があるリポジトリを clone
+      # リポジトリとパスを設定
+      - name: Clone ziyuutyou-next
+        uses: actions/checkout@v3
+        with:
+          repository: takusan23/ziyuutyou-next
+          path: ziyuutyou-next
+
+      # 検索用の json を作る処理を呼び出す
+      - name: Generate search.json
+        run: node search-json-generator.mjs $GITHUB_WORKSPACE/ziyuutyou-next search.json
+
+      # 検索ファイルを作ったら記事はもう不要なのでけす
+      - name: Delete markdown folder
+        run: rm -rf zityuutyou-next
+      
+      # AWS Lambda 用にライブラリを入れ直す（Markdown パースライブラリは不要なので）
+      - name: Package re-install for production
+        run: rm -rf node_modules && npm i --production
+
+      # zip にする
+      - name: Create zip file
+        run: zip -r deploy.zip .
+      
+      # AWS Lambda にデプロイする
+      - name: Deploy AWS Lambda
+        run: aws lambda update-function-code --function-name ${{ secrets.AWS_SECRET_ACCESS_KEY }} --zip-file deploy.zip
