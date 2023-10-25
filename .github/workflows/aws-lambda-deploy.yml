@@ -43,7 +43,7 @@ jobs:
 
       # 検索用の json を作る処理を呼び出す
       - name: Generate search.json
-        run: node search-json-generator.mjs ${{ github.workspace }}/ziyuutyou-next search.json
+        run: node search-json-generator.mjs ${{ github.workspace }}/ziyuutyou-next/content/posts /posts
 
       # 検索ファイルを作ったら記事はもう不要なのでけす
       - name: Delete markdown folder
