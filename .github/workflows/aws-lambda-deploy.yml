@@ -59,4 +59,4 @@ jobs:
       
       # AWS Lambda にデプロイする
       - name: Deploy AWS Lambda
-        run: aws lambda update-function-code --function-name ${{ secrets.AWS_SECRET_ACCESS_KEY }} --zip-file deploy.zip
+        run: aws lambda update-function-code --function-name ${{ secrets.AWS_SECRET_ACCESS_KEY }} --zip-file fileb://${{ github.workspace }}/deploy.zip
