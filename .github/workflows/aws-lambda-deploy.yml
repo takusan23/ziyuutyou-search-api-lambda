@@ -47,7 +47,7 @@ jobs:
 
       # 検索ファイルを作ったら記事はもう不要なのでけす
       - name: Delete markdown folder
-        run: rm -rf zityuutyou-next
+        run: rm -rf ziyuutyou-next
       
       # AWS Lambda 用にライブラリを入れ直す（Markdown パースライブラリは不要なので）
       - name: Package re-install for production
@@ -59,4 +59,4 @@ jobs:
       
       # AWS Lambda にデプロイする
       - name: Deploy AWS Lambda
-        run: aws lambda update-function-code --function-name ${{ secrets.AWS_SECRET_ACCESS_KEY }} --zip-file fileb://deploy.zip
+        run: aws lambda update-function-code --function-name ${{ secrets.AWS_LAMBDA_FUNCTION_NAME }} --zip-file fileb://deploy.zip
